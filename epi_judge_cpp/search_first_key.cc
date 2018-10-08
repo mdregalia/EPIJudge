@@ -4,7 +4,39 @@ using std::vector;
 
 int SearchFirstOfK(const vector<int>& A, int k) {
   // TODO - you fill in here.
-  return 0;
+	int L = 0;
+	int R = A.size() - 1;
+	int first = A.size();
+
+	while (L <= R)
+	{
+		int M = L + (R - L)/2;
+
+		if (A[M] == k)
+		{
+			if (M < first)
+			{
+				first = M;
+			}
+			// treat like a k < A[M] case
+			R = M - 1;
+		}
+		else if (k < A[M])
+		{
+			R = M - 1;
+		}
+		else
+		{
+			L = M + 1;
+		}
+	}
+
+	if (first == A.size())
+	{
+		return -1;
+	}
+
+	return first;
 }
 
 int main(int argc, char* argv[]) {
