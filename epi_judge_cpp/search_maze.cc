@@ -6,7 +6,19 @@
 #include "test_framework/test_failure.h"
 #include "test_framework/timed_executor.h"
 using std::vector;
-typedef enum { kWhite, kBlack } Color;
+using namespace std;
+typedef enum { kWhite, kBlack, kRed, kGreen } Color;
+
+/*
+Plan is to do a DFS, return an empty array if the place isn't found 
+Color the maze black as spots are taken up
+*/
+
+/*void printMaze(vector<vector<Color>> maze, vector<Coordinate> path)
+{
+
+}*/
+
 struct Coordinate {
   bool operator==(const Coordinate& that) const {
     return x == that.x && y == that.y;
@@ -14,11 +26,88 @@ struct Coordinate {
 
   int x, y;
 };
+
+vector<Coordinate> DFS(vector<vector<Color>>& maze, const Coordinate current, const Coordinate end, int width, int height)
+{
+  for (int i = -1; i <= 1; i++)
+  {
+    for (int j = -1; j <= 1; j++)
+    {
+
+      // if it's the same point as itself
+      if (i == 0 && j == 0)
+      {
+        continue;
+      }
+      if (!(i == 0 || j == 0))
+      {
+        continue;
+      }
+
+      int nextx = i + current.x;
+      int nexty = j + current.y;
+
+      //out of bounds
+      if (nextx < 0 || nextx >= width || nexty < 0 || nexty >= height)
+      {
+        continue;
+      }
+
+      // if it's the solution
+      if (nextx == end.x && nexty == end.y)
+      {
+        vector<Coordinate> result{};
+        result.push_back(end);
+        result.push_back(current);
+        return result;
+      }
+
+      // if it's an unseen place
+      if (maze[nextx][nexty] == kWhite)
+      {
+        // prevent from coming back
+        maze[nextx][nexty] = kBlack;
+
+        Coordinate newpoint{nextx, nexty};
+
+        vector<Coordinate> result = DFS(maze, newpoint, end, width, height);
+
+        if (result.size() > 0)
+        {
+          result.push_back(current);
+          //cout << newpoint.x << " " << newpoint.y << "\n";
+          return result;
+        }
+      }
+
+    }
+  }
+
+  return {};
+}
+
+
 vector<Coordinate> SearchMaze(vector<vector<Color>> maze, const Coordinate& s,
                               const Coordinate& e) {
   // TODO - you fill in here.
-  return {};
+  vector<vector<Color>> maze2 = maze;
+
+  int width = maze.size();
+  if (width == 0)
+  {
+    return {};
+  }
+
+  int height = maze[0].size();
+
+  vector<Coordinate> result = DFS(maze, e, s, width, height);
+  //result.erase(result.end() - 1);
+
+  //printMaze(maze2, result);
+
+  return result;
 }
+
 template <>
 struct SerializationTraits<Color> : SerializationTraits<int> {
   using serialization_type = Color;
